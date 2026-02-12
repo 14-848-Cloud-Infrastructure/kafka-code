@@ -18,24 +18,26 @@ def get_comments(video_id):
         id=video_id
     ).execute()
 
+    #Uncomment the line below to understand the object structure
+    #print(json.dumps(video_response, indent=2))
+
     live_chat_id = video_response["items"][0]["liveStreamingDetails"]["activeLiveChatId"]
 
     # STEP 2: Fetch live chat messages
     chat_response = youtube.liveChatMessages().list(
         liveChatId=live_chat_id,
         part="id,snippet,authorDetails",
-        maxResults=50
+        maxResults=2 # update max results to fetch more data
     ).execute()    
     comments = []
-    print(chat_response)
+    #Uncomment the line below to understand the object structure
+    #print(json.dumps(chat_response, indent=2))
     for item in chat_response['items']:
-        print(item)
-        comment = item['snippet']['topLevelComment']['snippet']
+        #print(json.dumps(item, indent=2))
         comment_data = {
-            'author': comment['authorDisplayName'],
-            'text': comment['textDisplay'],
-            'like_count': comment['likeCount'],
-            'published_at': comment['publishedAt'],
+            'author': item['authorDetails']['displayName'],
+            'published_at': item['snippet']['publishedAt'],
+            'text': item['snippet']['displayMessage']
         }
         comments.append(comment_data)
 
@@ -56,12 +58,11 @@ def stream_youtube_comments(video_id):
     while True:
         comments = get_comments(video_id)        
         for comment in comments:
-            comment_id = comment['published_at'] + comment['author']
+            comment_id = comment['published_at'] + ' ' + comment['author']
             if comment_id not in seen_comments:
                 seen_comments.add(comment_id)
-                # Send new comment to Kafka
-                key_str = str(comment['author']) + ": " +str(comment['text'])
-                producer.produce(TOPIC, key=key_str, value=str(comment['like_count']))
+                # Send the new comment to Kafka
+                producer.produce(TOPIC, key=str(comment['author']), value=str(comment['text']))
                 producer.flush()
         time.sleep(30)  # Poll for new comments every 30 seconds
 

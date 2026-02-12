@@ -44,10 +44,8 @@ def display_kafka_data():
         key = msg.key().decode('utf-8')
         value = msg.value().decode('utf-8')
         style = ""
-        if (int(value) > 0):
-            style="style='background-color:yellow;'"
         # Display message with an icon
-        st.markdown(f"{ICON_HTML}<span {style}>{key} has {value} like(s)</span>", unsafe_allow_html=True)
+        st.markdown(f"{ICON_HTML}<span {style}>{key} has made the comment: {value}</span>", unsafe_allow_html=True)
     consumer.close()
 
 if __name__ == "__main__":
