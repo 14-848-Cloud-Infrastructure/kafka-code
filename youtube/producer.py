@@ -11,7 +11,7 @@ TOPIC = 'youtube_topic'  # Replace with your Kafka topic
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="" #update this with your JSON file
 youtube = build('youtube', 'v3')
 # Example video ID
-VIDEO_ID = 'fQX56Jd9X4s' # Replace with the YouTube video ID you want to monitor
+VIDEO_ID = 'GotlA1KKWoo' # Replace with the YouTube video ID you want to monitor, make sure it has enabled live chat
 def get_comments(video_id):
     video_response = youtube.videos().list(
         part="liveStreamingDetails",
